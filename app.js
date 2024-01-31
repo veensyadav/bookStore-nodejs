@@ -21,10 +21,5 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get("/api/contacts", (req, res)=>{
-    res.send("Get all contacts");
-})
-
-app.use("/api/v1/userAuth", userRouter);
 
 module.exports = app;
