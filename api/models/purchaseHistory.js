@@ -3,16 +3,16 @@ module.exports = (sequelize, DataTypes) => {
         "purchaseHistory",
         {
             purchaseId: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: function () {
+                    const date = new Date();
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    // get the latest purchase ID for the current month and increment it
+                    return `${year}-${month}-${numericIncrementId}`;
+                },
             },
-            // bookId: {
-            //     type: DataTypes.STRING, allowNull: false,
-            // },
-            // userId: {
-            //     type: DataTypes.STRING, allowNull: false,
-            // },
             purchaseDate: {
                 type: DataTypes.DATE, allowNull: false,
             },

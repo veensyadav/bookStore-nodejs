@@ -14,10 +14,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER, defaultValue: 0
             },
             title: {
-                type: DataTypes.STRING, unique: true
+                type: DataTypes.STRING, 
+                // unique: true,
             },
             description: {
-                type: DataTypes.TEXT('long'),
+                type: DataTypes.TEXT,
             },
             price: {
                 type: DataTypes.FLOAT, validate: { min: 100, max: 1000 }
