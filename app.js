@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 
 require("./db-setup/index");
 
-const userRouter = require("./api/routes/userRoutes");
+// const userRouter = require("./api/routes/userRoutes");
 
 const app = express();
 
