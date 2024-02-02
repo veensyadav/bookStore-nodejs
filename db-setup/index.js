@@ -36,6 +36,9 @@ db.purchaseHistory.belongsTo(db.users);
 db.books.hasMany(db.purchaseHistory);
 db.purchaseHistory.belongsTo(db.books);
 
+// db.users.hasMany(db.books);
+// db.books.belongsTo(db.users);
+
 
 db.sequelize.sync({ alter: true }).then(() => {
     console.log("DB re-sync done...");

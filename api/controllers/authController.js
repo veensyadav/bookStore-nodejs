@@ -29,7 +29,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
             },
         });
     }
-})
+});
 
 exports.login = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ where: { email: req.body.email } });

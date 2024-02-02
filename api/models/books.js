@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
             },
             sellCount: {
-                type: DataTypes.INTEGER, defaultValue: 0
+                type: DataTypes.INTEGER, defaultValue: 0,
             },
             title: {
                 type: DataTypes.STRING, 
@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
             },
             price: {
-                type: DataTypes.FLOAT, validate: { min: 100, max: 1000 }
+                type: DataTypes.FLOAT, validate: { min: 100, max: 1000 },
+            },
+            userId: {
+                type: DataTypes.INTEGER,
             },
             isDeleted: {
                 type: DataTypes.BOOLEAN,
