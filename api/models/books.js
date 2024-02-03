@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         "books",
         {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
                 autoIncrement: true,
             },
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.FLOAT, validate: { min: 100, max: 1000 },
             },
             userId: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
             },
             isDeleted: {
                 type: DataTypes.BOOLEAN,

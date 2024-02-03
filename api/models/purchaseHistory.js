@@ -5,13 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             purchaseId: {
                 type: DataTypes.STRING,
                 primaryKey: true,
-                defaultValue: function () {
-                    const date = new Date();
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    // get the latest purchase ID for the current month and increment it
-                    return `${year}-${month}-${numericIncrementId}`;
-                },
             },
             purchaseDate: {
                 type: DataTypes.DATE, allowNull: false,

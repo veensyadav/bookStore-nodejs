@@ -12,8 +12,12 @@ exports.createBook = catchAsync(async (req, res, next) => {
     if (bookExists) {
         return next(new AppError("Book with this tittle is already registered", 402));
     } else {
+        // const userDetails = await user.findOne({ where: { id: req.user.id } });
         const userDetails = await user.findOne({ where: { id: req.body.userId } });
+        console.log(userDetails,"userDetails");
+        console.log(userDetails.user_Type,"userDetails.user_Type");
         if (userDetails.user_Type == "Author") {
+            console.log("Hello Buddy!")
             const newBook = await books.create({
                 authors: req.body.authors,
                 // sellCount: sellCountsValue,
@@ -52,7 +56,7 @@ exports.getBooks = catchAsync(async (req, res, next) => {
 
 // api to get books by ID
 exports.getBooksById = catchAsync(async (req, res, next) => {
-    const getBook = await books.findOne({ where: { id: req.body.id } });
+    const getBook = await books.findOne({ where: { id: req.params.id } });
     if (getBook) {
         res.status(200).json({
             status: "success",
@@ -67,9 +71,9 @@ exports.getBooksById = catchAsync(async (req, res, next) => {
 
 // api to get books by Author
 exports.getBooksByAuthor = catchAsync(async (req, res, next) => {
-    const userDetails = await user.findOne({ where: { id: req.body.id } });
+    const userDetails = await user.findOne({ where: { id: req.params.id } });
     if (userDetails.user_Type == "Author") {
-        const getBook = await books.find({ where: { userId: userDetails.id } });
+        const getBook = await books.findAll({ where: { userId: userDetails.id } });
         if (getBook) {
             res.status(200).json({
                 status: "success",
@@ -91,7 +95,8 @@ exports.deleteBook = catchAsync(async (req, res, next) => {
     });
     if (bookDetail) {
         const userDetails = await user.findOne({ where: { id: bookDetail.userId } });
-        if (!userDetails.user_Type == "retail_user") {
+        console.log(userDetails.user_Type,"userDetails")
+        if (!userDetails.user_Type === "retail_user") {
             const DeleteBook = await books.update(
                 { isDeleted: true },
                 {
@@ -110,4 +115,3 @@ exports.deleteBook = catchAsync(async (req, res, next) => {
         return next(new AppError("Book not found", 404));
     }
 });
-

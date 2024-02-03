@@ -25,7 +25,6 @@ exports.signUp = catchAsync(async (req, res, next) => {
             status: "success",
             data: {
                 user: userDetails,
-                token: token,
             },
         });
     }

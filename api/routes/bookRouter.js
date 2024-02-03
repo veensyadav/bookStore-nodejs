@@ -10,9 +10,9 @@ router.post("/create", booksController.createBook);
 
 router.get("/getAll", booksController.getBooks);
 
-router.get("/getById", booksController.getBooksById);
+router.post("/getById/:id", booksController.getBooksById);
 
-router.get("/byAuthor", booksController.getBooksByAuthor);
+router.post("/byAuthor/:id", booksController.getBooksByAuthor);
 
 router.put("/deleteBook/:id", booksController.deleteBook);
 
