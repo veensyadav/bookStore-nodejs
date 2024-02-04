@@ -8,19 +8,15 @@ const user = db.users;
 
 // API to allow author to publish books
 exports.createBook = catchAsync(async (req, res, next) => {
-    const bookExists = await books.findOne({ where: { title: req.body.title } });
+    const bookExists = await books.findOne({ where: { title: req.body.title, isDeleted: false } });
     if (bookExists) {
         return next(new AppError("Book with this tittle is already registered", 402));
     } else {
-        // const userDetails = await user.findOne({ where: { id: req.user.id } });
-        const userDetails = await user.findOne({ where: { id: req.body.userId } });
-        console.log(userDetails,"userDetails");
-        console.log(userDetails.user_Type,"userDetails.user_Type");
+        // const userDetails = await user.findOne({ where: { id: req.user.id, isDeleted: false } });
+        const userDetails = await user.findOne({ where: { id: req.body.userId, isDeleted: false } });
         if (userDetails.user_Type == "Author") {
-            console.log("Hello Buddy!")
             const newBook = await books.create({
                 authors: req.body.authors,
-                // sellCount: sellCountsValue,
                 title: req.body.title,
                 description: req.body.description,
                 price: req.body.price,
@@ -56,7 +52,7 @@ exports.getBooks = catchAsync(async (req, res, next) => {
 
 // api to get books by ID
 exports.getBooksById = catchAsync(async (req, res, next) => {
-    const getBook = await books.findOne({ where: { id: req.params.id } });
+    const getBook = await books.findOne({ where: { id: req.params.id, isDeleted: false } });
     if (getBook) {
         res.status(200).json({
             status: "success",
@@ -71,9 +67,9 @@ exports.getBooksById = catchAsync(async (req, res, next) => {
 
 // api to get books by Author
 exports.getBooksByAuthor = catchAsync(async (req, res, next) => {
-    const userDetails = await user.findOne({ where: { id: req.params.id } });
+    const userDetails = await user.findOne({ where: { id: req.params.id, isDeleted: false } });
     if (userDetails.user_Type == "Author") {
-        const getBook = await books.findAll({ where: { userId: userDetails.id } });
+        const getBook = await books.findAll({ where: { userId: userDetails.id, isDeleted: false } });
         if (getBook) {
             res.status(200).json({
                 status: "success",

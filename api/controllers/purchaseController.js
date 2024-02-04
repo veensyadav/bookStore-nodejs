@@ -66,22 +66,28 @@ function generatePurchaseId() {
 
 // get all purchase lists for admin
 exports.getAllPurchaseList = catchAsync(async (req, res, next) => {
-    const purchaseList = await purchase.findAll();
-    if (purchaseList) {
-        res.status(200).json({
-            status: "success",
-            data: {
-                purchaseList: purchaseList,
-            }
-        });
+    const userDetail = await users.findOne({ where: { id: req.user.id } });
+    if (userDetail.user_Type === "Admin") {
+        const purchaseList = await purchase.findAll();
+        if (purchaseList) {
+            res.status(200).json({
+                status: "success",
+                data: {
+                    purchaseList: purchaseList,
+                }
+            });
+        } else {
+            return next(new AppError("Not able to find purchase list.", 402));
+        }
     } else {
-        return next(new AppError("Not able to find purchase list.", 402));
+        return next(new AppError("only admin allowed to view all purchase list.", 402));
     }
 });
 
-// get purchase history by userId for author or retail_users
+// get purchase history by userId for retail_users
 exports.getPurchHistByUserId = catchAsync(async (req, res, next) => {
-    const purchaseList = await purchase.findAll({ where: { userId: req.params.userId } });
+    // const purchaseList = await purchase.findAll({ where: { userId: req.user.id } });
+    const purchaseList = await purchase.findAll({ where: { userId: req.params.id } });
     if (purchaseList) {
         res.status(200).json({
             status: "success",
@@ -91,5 +97,29 @@ exports.getPurchHistByUserId = catchAsync(async (req, res, next) => {
         });
     } else {
         return next(new AppError("Not able to find purchase list realted to this userId.", 402));
+    }
+});
+
+
+
+// get purchase history by author
+exports.getPurchHistByAuthorId = catchAsync(async (req, res, next) => {
+    const userDetails = await users.findOne({ where: { id: req.body.id } });
+    if(userDetails){
+        const booksDetails = await books.findAll({ where: { userId: userDetails.id } });
+        const bookIds = booksDetails.map(book => book.id);
+        const purchaseList = await purchase.findAll({ where: { bookId: bookIds } });
+        if (purchaseList) {
+            res.status(200).json({
+                status: "success",
+                data: {
+                    purchaseList: purchaseList,
+                }
+            });
+        } else {
+            return next(new AppError("Not able to find purchase list realted to this userId.", 402));
+        }
+    } else{
+        return next(new AppError("user is not exists.", 402));
     }
 });

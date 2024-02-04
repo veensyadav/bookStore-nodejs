@@ -12,4 +12,6 @@ router.post("/history", purchaseController.getAllPurchaseList);
 
 router.post("/historyById/:userId", purchaseController.getPurchHistByUserId);
 
+router.post("/history/byAuthor", purchaseController.getPurchHistByAuthorId);
+
 module.exports = router;
