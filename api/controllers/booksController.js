@@ -1,6 +1,7 @@
 const AppError = require("../../utill/appError");
 const catchAsync = require("../../utill/catchAsync");
 const db = require("../../db-setup");
+const emailSent = require("../services/mailController");
 
 const books = db.books;
 const user = db.users;
@@ -22,13 +23,19 @@ exports.createBook = catchAsync(async (req, res, next) => {
                 price: req.body.price,
                 userId: req.body.userId,
                 isDeleted: false
-            })
-            res.status(200).json({
-                status: "success",
-                data: {
-                    newBooks: newBook,
-                }
             });
+            if (newBook) {
+                const userDetails = await user.findAll({ where: { user_Type: "retail_user" } });
+                const retailersEmails = userDetails.map((email) => email.email);
+                emailSent.bookReleaseNotif(newBook, retailersEmails);
+
+                res.status(200).json({
+                    status: "success",
+                    data: {
+                        newBooks: newBook,
+                    }
+                });
+            }
         } else {
             return next(new AppError("Only Author will be able to publish book", 402));
         }
@@ -91,7 +98,7 @@ exports.deleteBook = catchAsync(async (req, res, next) => {
     });
     if (bookDetail) {
         const userDetails = await user.findOne({ where: { id: bookDetail.userId } });
-        console.log(userDetails.user_Type,"userDetails")
+        console.log(userDetails.user_Type, "userDetails")
         if (!userDetails.user_Type === "retail_user") {
             const DeleteBook = await books.update(
                 { isDeleted: true },
