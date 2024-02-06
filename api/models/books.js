@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER, defaultValue: 0,
             },
             title: {
-                type: DataTypes.STRING, 
+                type: DataTypes.STRING,
                 // unique: true,
             },
             description: {
@@ -25,6 +25,12 @@ module.exports = (sequelize, DataTypes) => {
             },
             userId: {
                 type: DataTypes.STRING,
+            },
+            review: {
+                type: DataTypes.TEXT,
+            },
+            rating: {
+                type: DataTypes.INTEGER,
             },
             isDeleted: {
                 type: DataTypes.BOOLEAN,

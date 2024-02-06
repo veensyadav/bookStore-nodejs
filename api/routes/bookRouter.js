@@ -18,4 +18,6 @@ router.post("/byAuthor", verifyToken.verifyToken, booksController.getBooksByAuth
 
 router.put("/deleteBook/:id", verifyToken.verifyToken, booksController.deleteBook);
 
+router.put("/update/review/:id", verifyToken.verifyToken, booksController.bookReview);
+
 module.exports = router;

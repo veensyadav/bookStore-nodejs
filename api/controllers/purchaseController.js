@@ -2,6 +2,7 @@ const AppError = require("../../utill/appError");
 const catchAsync = require("../../utill/catchAsync");
 const db = require("../../db-setup");
 const emailSent = require("../services/mailController");
+const { Op } = require('sequelize');
 
 const cron = require('node-cron');
 
@@ -77,7 +78,6 @@ exports.getAllPurchaseList = catchAsync(async (req, res, next) => {
 // get purchase history by userId for retail_users
 exports.getPurchHistByUserId = catchAsync(async (req, res, next) => {
     const purchaseList = await purchase.findAll({ where: { userId: req.user.id } });
-    // const purchaseList = await purchase.findAll({ where: { userId: req.params.id } });
     if (purchaseList) {
         res.status(200).json({
             status: "success",
@@ -115,52 +115,61 @@ exports.getPurchHistByAuthorId = catchAsync(async (req, res, next) => {
 });
 
 
-// get revenue by month and year
 async function totalRevenueDetail() {
     const userDetails = await users.findAll({ where: { user_Type: "Author" } });
-    let totalMonthlyRevenue = 0;
-    let totalYearlyRevenue = 0;
-    let totalRevenueTillToday = 0;
-    const authorEmails = await userDetails.map((emails)=>emails.email);
-    const authorIds = await userDetails.map((userId) => userId.id);
-    for (const id of authorIds) {
-        const booksDetails = await books.findAll({ where: { userId: id } });
-        const bookIds = await booksDetails.map((bookid) => bookid.id);
-        for (const bookid of bookIds) {
-            const purchaseDetails = await purchase.findAll({ where: { bookId: bookid } });
-            const currentMonthSells = purchaseDetails.filter((purchase) => {
-                const purchaseDate = purchase.purchaseDate;
-                const currentDate = new Date();
-                return (purchaseDate.getMonth() + 1) === (currentDate.getMonth() + 1) && (purchaseDate.getFullYear() + 1) === (currentDate.getFullYear() + 1);
-            });
+    const authorEmails = userDetails.map((user) => user.email);
 
-            const bookRevenue = currentMonthSells.reduce((total, purchase) => total + purchase.price, 0);
-            totalMonthlyRevenue += bookRevenue;
-        } for (const bookid of bookIds) {
-            const purchaseDetails = await purchase.findAll({ where: { bookId: bookid } });
-            const currentYearSells = purchaseDetails.filter((purchase) => {
-                const purchaseDate = purchase.purchaseDate;
-                const currentDate = new Date();
-                return (purchaseDate.getFullYear() + 1) === (currentDate.getFullYear() + 1);
-            });
+    const resultDetails = [];
 
-            const bookRevenue = currentYearSells.reduce((total, purchase) => total + purchase.price, 0);
-            totalYearlyRevenue += bookRevenue;
-        }
+    for (const user of userDetails) {
+        let totalMonthlyRevenue = 0;
+        let totalYearlyRevenue = 0;
+        let totalRevenueTillToday = 0;
 
-        for (const bookid of bookIds) {
-            const purchaseDetails = await purchase.findAll({ where: { bookId: bookid } });
-            const bookRevenue = purchaseDetails.reduce((total, purchase) => total + purchase.price, 0);
-            totalRevenueTillToday += bookRevenue;
-        }
+        const booksDetails = await books.findAll({ where: { userId: user.id } });
+        const bookIds = booksDetails.map((book) => book.id);
 
-        return {totalMonthlyRevenue, totalYearlyRevenue, totalRevenueTillToday, authorEmails};
+        const purchaseDetails = await purchase.findAll({ where: { bookId: { [Op.in]: bookIds } } });
+
+        const currentMonthSells = purchaseDetails.filter((purchase) => {
+            const purchaseDate = purchase.purchaseDate;
+            const currentDate = new Date();
+            return (
+                purchaseDate.getMonth() === currentDate.getMonth() &&
+                purchaseDate.getFullYear() === currentDate.getFullYear()
+            );
+        });
+        totalMonthlyRevenue += currentMonthSells.reduce((total, purchase) => total + purchase.price, 0);
+
+        const currentYearSells = purchaseDetails.filter((purchase) => {
+            const purchaseDate = purchase.purchaseDate;
+            const currentDate = new Date();
+            return purchaseDate.getFullYear() === currentDate.getFullYear();
+        });
+        totalYearlyRevenue += currentYearSells.reduce((total, purchase) => total + purchase.price, 0);
+
+        totalRevenueTillToday = purchaseDetails.reduce((total, purchase) => total + purchase.price, 0);
+
+        resultDetails.push({
+            email: user.email,
+            totalMonthlyRevenue,
+            totalYearlyRevenue,
+            totalRevenueTillToday,
+        });
     }
 
+    return { resultDetails, authorEmails };
 };
 
 
-// cron.schedule('0 0 1 * *', async () => { //  it specifies that the task should run at midnight on the first day of every month 
+// cron.schedule('3 * * * * *', async () => { //  it specifies that the task should run at midnight on the first day of every month 
+//     // * * * * * * = sec:1-59, min:1-59, hour: 1-12, Day of the month, month, Day of the week, year
+//     const totalRevenue = await totalRevenueDetail();
+//     await emailSent.authorRevenueDetails(totalRevenue);
+//     console.log(totalRevenue, "totalRevenue");
+// });
+
+// cron.schedule('0 0 0 1 * *', async () => { //  it specifies that the task should run at midnight on the first day of every month
 //     // * * * * * * = sec:1-59, min:1-59, hour: 1-12, Day of the month, month, Day of the week, year
 //     const totalRevenue = await totalRevenueDetail();
 //     await emailSent.authorRevenueDetails(totalRevenue);

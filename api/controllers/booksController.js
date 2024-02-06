@@ -14,7 +14,6 @@ exports.createBook = catchAsync(async (req, res, next) => {
         return next(new AppError("Book with this tittle is already registered", 402));
     } else {
         const userDetails = await user.findOne({ where: { id: req.user.id, isDeleted: false } });
-        // const userDetails = await user.findOne({ where: { id: req.body.userId, isDeleted: false } });
         if (userDetails.user_Type == "Author") {
             const newBook = await books.create({
                 authors: req.body.authors,
@@ -112,6 +111,33 @@ exports.deleteBook = catchAsync(async (req, res, next) => {
             });
         } else {
             return next(new AppError("retail user is not have permission to delete", 402));
+        }
+    } else {
+        return next(new AppError("Book not found", 404));
+    }
+});
+
+// api to review and rate books
+exports.bookReview = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+    const booksDetails = await books.findOne({ where: { id: req.params.id } });
+    if (booksDetails) {
+        const userDetails = await user.findOne({ where: { id: userId } });
+        if (userDetails.user_Type === "retail_user") {
+            const updateReview = await books.update({
+                review: req.body.review,
+                rating: req.body.rating
+            },
+                {
+                    where: { id: req.params.id }
+                })
+                return res.send({
+                    object: "updateReview",
+                    data: updateReview,
+                    message: "update Review & Rating Successfully",
+                });
+        } else {
+            return next(new AppError("You are not a retail user", 404));
         }
     } else {
         return next(new AppError("Book not found", 404));

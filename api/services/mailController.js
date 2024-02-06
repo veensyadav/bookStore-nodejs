@@ -174,72 +174,63 @@ exports.bookReleaseNotif = async (newBook, retailersEmails) => {
     }
 };
 
-
 exports.authorRevenueDetails = async (totalRevenue) => {
     sgMail.setApiKey(key);
-    console.log("Hello");
-    for (const emailId of totalRevenue.authorEmails) {
+
+    for (const userDetails of totalRevenue.resultDetails) {
+        const { email, totalMonthlyRevenue, totalYearlyRevenue, totalRevenueTillToday } = userDetails;
+
         const msg = {
-            to: emailId,
+            to: email,
             from: 'praveen18020@gmail.com',
-            subject: 'New Book Released',
-            text: 'and easy to do anywhere, even with Node.js',
+            subject: 'Revenue Details for Your Book Sales',
+            text: 'Check out your book sales revenue details.',
             html: `
             <html lang="en">
-
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Revenue Details</title>
-            </head>
-
-            <body>
-                <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 15px; background: #f8f8f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                    <div style="background: white; padding: 28px 38px; width: 100%;">
-                        <div style="text-align: left; width: 100%;">
-                            <div>
-                                <span style="font-size: 16px; margin: 0 0 4px; display: block;">
-                                    Dear ${emailId},
-                                </span>
-                                <span style="font-size: 16px;">
-                                    Here are the revenue details for your book sales.
-                                </span>
+                <body>
+                    <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 15px; background: #f8f8f8; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                        <div style="background: white; padding: 28px 38px; width: 100%;">
+                            <div style="text-align: left; width: 100%;">
+                                <div>
+                                    <span style="font-size: 16px; margin: 0 0 4px; display: block;">
+                                        Dear ${email},
+                                    </span>
+                                    <span style="font-size: 16px;">
+                                        Here are the revenue details for your book sales.
+                                    </span>
+                                </div>
+                                <div style="border-top: 1px solid #c2c2c2; margin-top: 20px;">
+                                    <h3 style="font-weight: 500; font-size: 16px; line-height: 24px; color: #666666;">Revenue Details</h3>
+                                </div>
+                                <table style="margin-top: 20px; width: 100%;" borderSpacing="0" cellSpacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Current Monthly Revenue</td>
+                                            <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalMonthlyRevenue}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Current Year Revenue</td>
+                                            <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalYearlyRevenue}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Revenue Till Today</td>
+                                            <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalRevenueTillToday}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div style="border-top: 1px solid #c2c2c2; margin-top: 20px;">
-                                <h3 style="font-weight: 500; font-size: 16px; line-height: 24px; color: #666666;">Revenue Details</h3>
-                            </div>
-                            <table style="margin-top: 20px; width: 100%;" borderSpacing="0" cellSpacing="0">
-                                <tbody>
-                                    <tr>
-                                        <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Current Monthly Revenue</td>
-                                        <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalRevenue.totalMonthlyRevenue}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Current Year Revenue</td>
-                                        <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalRevenue.totalYearlyRevenue}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-weight: 500; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">Total Revenue Till Today</td>
-                                        <td style="font-weight: 400; font-size: 14px; line-height: 24px; color: #000000; width: 50%; padding: 10px 5px;">$ ${totalRevenue.totalRevenueTillToday}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
-                </div>
-            </body>
-
-        </html>
+                </body>
+            </html>
             `
         };
 
         try {
-            await limiter.schedule(() => sgMail.send(msg));
-            console.log('Email sent');
+            await sgMail.send(msg);
+            console.log(`Email sent to ${email}`);
         } catch (error) {
-            console.error(error);
-            return error;
+            console.error(`Error sending email to ${email}`, error);
         }
     }
 };
