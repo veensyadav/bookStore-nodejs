@@ -9,6 +9,7 @@ const limiter = new Bottleneck({
 
 exports.ClientPurchaseInfo = (book, authorEmail, purchaseData, retailerEmail) => {
     sgMail.setApiKey(key);
+    console.log(key, "key");
     const msg = {
         to: retailerEmail,
         cc: authorEmail,
@@ -40,7 +41,7 @@ exports.ClientPurchaseInfo = (book, authorEmail, purchaseData, retailerEmail) =>
                     <td>
                       <div style="display: block;">
                         <span style="font-size: 16px; margin: 0 0 4px; display: block;">
-                          Dear ${authorEmail},
+                          Dear,
                         </span>
                         <span style="font-size: 16px;">
                           Here is the invoice of recent purchase.

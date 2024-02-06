@@ -12,8 +12,8 @@ const users = db.users;
 
 //create purchase data
 exports.purchaseBook = catchAsync(async (req, res, next) => {
-    // const userId = req.user.id;
-    const { userId, bookId, quantity } = req.body;
+    const userId = req.user.id;
+    const { bookId, quantity } = req.body;
     const userDetails = await users.findOne({ where: { id: userId } });
     if (userDetails.user_Type === "retail_user") {
         const book = await books.findOne({ where: { id: bookId } });
@@ -76,8 +76,8 @@ exports.getAllPurchaseList = catchAsync(async (req, res, next) => {
 
 // get purchase history by userId for retail_users
 exports.getPurchHistByUserId = catchAsync(async (req, res, next) => {
-    // const purchaseList = await purchase.findAll({ where: { userId: req.user.id } });
-    const purchaseList = await purchase.findAll({ where: { userId: req.params.id } });
+    const purchaseList = await purchase.findAll({ where: { userId: req.user.id } });
+    // const purchaseList = await purchase.findAll({ where: { userId: req.params.id } });
     if (purchaseList) {
         res.status(200).json({
             status: "success",
@@ -94,7 +94,7 @@ exports.getPurchHistByUserId = catchAsync(async (req, res, next) => {
 
 // get purchase history by author
 exports.getPurchHistByAuthorId = catchAsync(async (req, res, next) => {
-    const userDetails = await users.findOne({ where: { id: req.body.id } });
+    const userDetails = await users.findOne({ where: { id: req.user.id } });
     if (userDetails) {
         const booksDetails = await books.findAll({ where: { userId: userDetails.id } });
         const bookIds = booksDetails.map(book => book.id);
@@ -160,9 +160,9 @@ async function totalRevenueDetail() {
 };
 
 
-cron.schedule('0 0 1 * *', async () => { //  it specifies that the task should run at midnight on the first day of every month 
-    // * * * * * * = sec:1-59, min:1-59, hour: 1-12, Day of the month, month, Day of the week, year
-    const totalRevenue = await totalRevenueDetail();
-    await emailSent.authorRevenueDetails(totalRevenue);
-    console.log(totalRevenue, "totalRevenue");
-});
+// cron.schedule('0 0 1 * *', async () => { //  it specifies that the task should run at midnight on the first day of every month 
+//     // * * * * * * = sec:1-59, min:1-59, hour: 1-12, Day of the month, month, Day of the week, year
+//     const totalRevenue = await totalRevenueDetail();
+//     await emailSent.authorRevenueDetails(totalRevenue);
+//     console.log(totalRevenue, "totalRevenue");
+// });

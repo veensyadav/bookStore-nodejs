@@ -13,15 +13,15 @@ exports.createBook = catchAsync(async (req, res, next) => {
     if (bookExists) {
         return next(new AppError("Book with this tittle is already registered", 402));
     } else {
-        // const userDetails = await user.findOne({ where: { id: req.user.id, isDeleted: false } });
-        const userDetails = await user.findOne({ where: { id: req.body.userId, isDeleted: false } });
+        const userDetails = await user.findOne({ where: { id: req.user.id, isDeleted: false } });
+        // const userDetails = await user.findOne({ where: { id: req.body.userId, isDeleted: false } });
         if (userDetails.user_Type == "Author") {
             const newBook = await books.create({
                 authors: req.body.authors,
                 title: req.body.title,
                 description: req.body.description,
                 price: req.body.price,
-                userId: req.body.userId,
+                userId: req.user.id,
                 isDeleted: false
             });
             if (newBook) {
@@ -74,7 +74,7 @@ exports.getBooksById = catchAsync(async (req, res, next) => {
 
 // api to get books by Author
 exports.getBooksByAuthor = catchAsync(async (req, res, next) => {
-    const userDetails = await user.findOne({ where: { id: req.params.id, isDeleted: false } });
+    const userDetails = await user.findOne({ where: { id: req.user.id, isDeleted: false } });
     if (userDetails.user_Type == "Author") {
         const getBook = await books.findAll({ where: { userId: userDetails.id, isDeleted: false } });
         if (getBook) {
@@ -98,8 +98,7 @@ exports.deleteBook = catchAsync(async (req, res, next) => {
     });
     if (bookDetail) {
         const userDetails = await user.findOne({ where: { id: bookDetail.userId } });
-        console.log(userDetails.user_Type, "userDetails")
-        if (!userDetails.user_Type === "retail_user") {
+        if (!(userDetails.user_Type === "retail_user")) {
             const DeleteBook = await books.update(
                 { isDeleted: true },
                 {
