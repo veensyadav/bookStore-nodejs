@@ -40,27 +40,29 @@ The Book Store Application is a Node.js-based backend system designed for managi
 ## The choices made in terms of database design and implementation.
 
 ### Database Design
-#### a. User Management:
+
+**a. User Management:**
 - Use a Users table to store user information.
 - Include fields such as userId, firstName, lastName, password (hashed), role (Author, Admin, Retail User).
 
-#### b. Book Management:
+**b. Book Management:**
 - Create a Books table to store book details.
 - Fields include bookId, authors (can be an array for multiple authors), sellCount (can be computed dynamically), title, description, and price.
 
-#### c. Purchase History:
+**c. Purchase History:**
 - Implement a PurchaseHistory table to store purchase records.
 - Fields include purchaseId, bookId, userId, purchaseDate, price, and quantity.
 
-#### d. Revenue Tracking:
+**d. Revenue Tracking:**
 - To track revenue for authors, calculate and store revenue in the Authors table.
 - Authors table may include fields like authorId, authorName, totalRevenue, etc.
 
-#### e. Email Notification:
+**e. Email Notification:**
 
 - Use a separate EmailQueue table to queue up email notifications.
 - Fields include emailId, recipient, subject, body, and status.
 - Process this queue asynchronously using a background job or message queue.
+
   
 ### Database Implementation:
 
