@@ -162,9 +162,7 @@ async function totalRevenueDetail() {
 };
 
 
-
-cron.schedule('0 0 0 1 * *', async () => { //  it specifies that the task should run at midnight on the first day of every month
-    // * * * * * * = sec:1-59, min:1-59, hour: 1-12, Day of the month, month, Day of the week, year
+cron.schedule('0 0 0 1 * *', async () => { 
     const totalRevenue = await totalRevenueDetail();
     await emailSent.authorRevenueDetails(totalRevenue);
     console.log(totalRevenue, "totalRevenue");
